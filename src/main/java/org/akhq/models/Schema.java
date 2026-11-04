@@ -68,14 +68,17 @@ public class Schema {
                 throw new AvroTypeException("Failed to parse schema " + schema.getSubject());
             }
             this.references = parsedSchema.references();
-            this.schema = parsedSchema.rawSchema().toString();
             this.schemaType = schema.getSchemaType();
-            if (schemaType.equals(AvroSchema.TYPE)) {
-                this.avroSchema = parser.parse(this.schema);
-            } else if ( schemaType.equals(JsonSchema.TYPE)) {
-                this.jsonSchema = ((JsonSchema)parsedSchema).toJsonNode();
-            } else if ( schemaType.equals(ProtobufSchema.TYPE)) {
+            if (schemaType.equals(JsonSchema.TYPE)) {
                 this.schema = parsedSchema.canonicalString();
+                this.jsonSchema = ((JsonSchema)parsedSchema).toJsonNode();
+            } else {
+                this.schema = parsedSchema.rawSchema().toString();
+                if (schemaType.equals(AvroSchema.TYPE)) {
+                    this.avroSchema = parser.parse(this.schema);
+                } else if ( schemaType.equals(ProtobufSchema.TYPE)) {
+                    this.schema = parsedSchema.canonicalString();
+                }
             }
         } catch (AvroTypeException e) {
             this.schema = null;
